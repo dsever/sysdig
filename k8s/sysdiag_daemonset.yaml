@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: sysdig-agent
+  labels:
+    system: sysdig
+    application: sysdig
+spec:
+  selector:
+    matchLabels:
+      name: sysdig-template
+  template:
+    metadata:
+      labels:
+        name: sysdig-template
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      containers:
+      - name: sysdig-container
+        image: quay.io/fluentd_elasticsearch/fluentd:v2.5.2
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
