@@ -17,12 +17,60 @@ spec:
       tolerations:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
+      hostNetwork: True
       containers:
       - name: sysdig-container
-        image: quay.io/fluentd_elasticsearch/fluentd:v2.5.2
+        image: sysdig/sysdig
+#        command: ["sysdig"]
+        securityContext:
+          privileged: True
+        env:
+          - name: SYSDIG_BPF_PROBE
+            value: ""
+          # - name: http_proxy
+          #   value: http://10.235.31.131:3128
+          # - name: https_proxy
+          #   value: http://10.235.31.131:3128
+
         resources:
           limits:
             memory: 200Mi
           requests:
-            cpu: 100m
+            cpu: 50m
             memory: 200Mi
+        volumeMounts:
+          - name: docker-socket
+            mountPath: /host/var/run/docker.sock
+          - name: dev
+            mountPath: /host/dev
+          - name: proc
+            mountPath: /host/proc
+            readOnly: True
+          - name: boot
+            mountPath: /host/boot
+            readOnly: True
+          - name: modules
+            mountPath: /host/lib/modules
+            readOnly: False
+          - name: usr
+            mountPath: /host/usr
+            readOnly: True
+      volumes:
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+        - name: dev
+          hostPath:
+            path: /dev
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: boot
+          hostPath:
+            path: /boot
+        - name: modules
+          hostPath:
+            path: /lib/modules
+        - name: usr
+          hostPath:
+            path: /usr
